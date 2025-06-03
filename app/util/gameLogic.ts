@@ -94,7 +94,7 @@ const staticEval = (state: valueType[], human: "X" | "O") => {
 
 
 
-export const miniMax = (state: valueType[], depth:number, maximizingPlayer:boolean,human: "X" | "O")=>{
+export const miniMax = (state: valueType[], depth:number, alpha:number, beta:number, maximizingPlayer:boolean,human: "X" | "O")=>{
 
     const winnerResult = Winner(state);
     if (depth === 0 || (winnerResult && winnerResult[0] !== null)) return staticEval(state, human); // base case for the recursive function 
@@ -110,8 +110,11 @@ export const miniMax = (state: valueType[], depth:number, maximizingPlayer:boole
                 const gameState = structuredClone(state);
                 gameState[i].value = human === "X" ? "O" : "X"
                 
-                let currentEval = miniMax(gameState, depth - 1, false, human) 
-                maxEval = Math.max(currentEval!, maxEval)    
+                let currentEval = miniMax(gameState, depth - 1, alpha, beta, false, human) 
+                maxEval = Math.max(currentEval!, maxEval)
+
+                alpha = Math.max(currentEval!, alpha)
+                if(beta <= alpha) break
             }
         }
         return maxEval
@@ -126,8 +129,11 @@ export const miniMax = (state: valueType[], depth:number, maximizingPlayer:boole
                 const gameState = structuredClone(state);
                 gameState[i].value = human
 
-                let currentEval = miniMax(gameState, depth - 1, true, human)
+                let currentEval = miniMax(gameState, depth - 1, alpha, beta, true, human)
                 minEval = Math.min(currentEval!, minEval)                
+                
+                beta = Math.min(currentEval!, beta)
+                if(beta <= alpha) break
             }
         }
         return minEval
@@ -151,7 +157,7 @@ export const bestMove = (state:valueType[], human: "X" | "O")=>{
 
             state[i].value = human === "X" ? "O" : "X" 
             
-            let score = miniMax(state, 10, false, human)!;
+            let score = miniMax(state, 10, -Infinity, Infinity, false, human)!;
             state[i].value = null
             
             if(score > bestScore){
